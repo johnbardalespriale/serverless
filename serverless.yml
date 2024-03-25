@@ -1,0 +1,92 @@
+service: my-starwars-api
+frameworkVersion: '2 || 3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: 'eu-west-3'
+  stage: dev
+  iam:
+    role:
+      statements:
+        - Sid: StarWarsCharacters
+          Effect: Allow
+          Action:
+            - dynamodb:Scan
+            - dynamodb:BatchGet*
+            - dynamodb:DescribeStream
+            - dynamodb:DescribeTable
+            - dynamodb:Get*
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:BatchWrite*
+            - dynamodb:CreateTable
+            - dynamodb:Delete*
+            - dynamodb:Update*
+            - dynamodb:PutItem
+          Resource: "*"
+
+functions:
+  getCharacters:
+    handler: dist/controllers/getCharacters.handler
+    events:
+      - http:
+          path: characters
+          method: get
+          cors: true
+  createCharacter:
+    handler: dist/controllers/characterController.createCharacterHandler
+    events:
+      - http:
+          path: createCharacter
+          method: post
+          cors: true
+
+plugins:
+  - serverless-dynamodb
+  - serverless-offline
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true # Usa la versión en memoria de DynamoDB
+      migrate: true # Crea automáticamente las tablas definidas en el archivo serverless.yml
+      seed: true
+
+resources:
+  Resources:
+    StarWarsCharactersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StarWarsCharacters
+        AttributeDefinitions:
+          - AttributeName: characterId
+            AttributeType: S
+          - AttributeName: nombre
+            AttributeType: S
+        KeySchema:
+          - AttributeName: characterId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        GlobalSecondaryIndexes:
+          - IndexName: NameIndex
+            KeySchema:
+              - AttributeName: nombre
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 5
+
+package: 
+  exclude:
+    - node_modules/dynamodb-localhost/**
+    - node_modules/serverless-dynamodb/**
+    - node_modules/serverless-offline/**

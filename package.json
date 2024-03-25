@@ -1,0 +1,32 @@
+{
+  "name": "my-starwars-api",
+  "version": "1.0.0",
+  "description": "API for Star Wars characters",
+  "dependencies": {
+    "aws-sdk": "^2.1584.0",
+    "axios": "^1.6.8",
+    "express": "^4.19.1",
+    "querystring": "^0.2.1",
+    "serverless-dynamodb": "^0.2.51",
+    "serverless-http": "^3.2.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.136",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/uuid": "^9.0.8",
+    "jest": "^29.7.0",
+    "serverless": "^3.38.0",
+    "serverless-offline": "^13.3.3",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  },
+  "scripts": {
+    "test": "jest",
+    "compile": "tsc",
+    "local": "npm run compile && serverless offline start",
+    "deploy": "serverless deploy"
+  }
+}
